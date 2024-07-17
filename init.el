@@ -59,6 +59,15 @@
 
 ;;(global-set-key (kbd "C-x j") 'treemacs)
 
+;; Habilitar a funcionalidade de redimensionamento de janelas com o mouse
+(window-divider-mode 1)
+
+;; Personalizar a aparência das divisórias (opcional)
+;; (setq window-divider-default-right-width 3)
+;; (setq window-divider-default-places 'right-only)
+
+
+
 ;;temas
 (use-package spacemacs-theme
   :ensure t
@@ -76,25 +85,6 @@
   (ansi-term "/bin/zsh"))
 ;; Atribuir uma tecla de atalho para abrir o terminal `ansi-term` com `zsh` na parte inferior
 (global-set-key (kbd "C-c t") 'open-ansi-term-zsh-bottom)
-
-;; Adiciona repositórios MELPA para instalar pacotes
-(require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("gnu" . "https://elpa.gnu.org/packages/")))
-(package-initialize)
-
-;; Atualiza a lista de pacotes se necessário
-(unless package-archive-contents
-  (package-refresh-contents))
-
-;; Instala use-package se não estiver instalado
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-;; Carrega use-package e configura para garantir que todos os pacotes sejam instalados automaticamente
-(require 'use-package)
-(setq use-package-always-ensure t)
 
 ;; Company Mode
 (use-package company
