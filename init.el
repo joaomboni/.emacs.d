@@ -90,7 +90,7 @@
 (use-package company
   :hook (after-init . global-company-mode)
   :config
-  (setq company-idle-delay 0.2)   ;; Tempo de espera para sugestões aparecerem
+  (setq company-idle-delay 0.0)   ;; Tempo de espera para sugestões aparecerem
   (setq company-minimum-prefix-length 1)) ;; Número mínimo de caracteres para iniciar autocompletar
 
 ;; Auto-Complete
@@ -106,6 +106,16 @@
   (setq web-mode-css-indent-offset 2)    ;; Indentação para CSS
   (setq web-mode-code-indent-offset 2)   ;; Indentação para código (JS, PHP, etc.)
   (setq web-mode-enable-auto-quoting nil)) ;; Desativa auto-quoting
+
+
+
+(use-package lsp-php
+  :ensure nil
+  :after php-mode
+  :custom
+  (lsp-php-server-command "/usr/bin/php")) ;; Ajuste o caminho do servidor de linguagem PHP
+
+
 
 ;; JS2 Mode
 (use-package js2-mode
@@ -142,7 +152,7 @@
 
 ;; YAML Mode
 (use-package yaml-mode
-  :mode "\\.ya?ml\\'"
+  :mode "\\.yml\\'"
   :hook (yaml-mode . lsp-deferred)
   :config
   (setq yaml-indent-offset 2)) ;; Indentação para YAML
@@ -152,7 +162,17 @@
   :after nxml-mode)
 (global-set-key (kbd "C-c m") 'xml-format-buffer)
 
-
+;; php Mode
+(use-package php-mode
+  :mode "\\.php\\'"
+  :hook (php-mode . lsp-deferred)
+  :config
+  (setq php-format-on-save t)  ;; Formatar ao salvar (se aplicável)
+  (add-hook 'php-mode-hook
+            (lambda ()
+              (setq tab-width 4)          ;; Largura da tabulação
+              (setq indent-tabs-mode nil) ;; Usar espaços em vez de tabs
+              (setq c-basic-offset 4))))  ;; Nível de indentação
 
 ;; Flycheck
 (use-package flycheck
@@ -170,7 +190,8 @@
          (c-mode . lsp-deferred)
          (c++-mode . lsp-deferred)
          (java-mode . lsp-deferred)
-         (yaml-mode . lsp-deferred))
+         (yaml-mode . lsp-deferred)
+		 (php-mode . lsp-deferred))
          ;;(nxml-mode . lsp-deferred))
   :config
   (setq lsp-enable-snippet nil) ;; Desativa snippets, se preferir
