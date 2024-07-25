@@ -218,8 +218,20 @@
   (setq lsp-enable-snippet nil) ;; Desativa snippets, se preferir
   (setq lsp-prefer-capf t)) ;; Usa completion-at-point-functions para autocompletar
 
+
+;; Configuração do lsp-ui
 (use-package lsp-ui
-  :commands lsp-ui-mode)
+  :ensure t
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-doc-enable t
+        lsp-ui-doc-use-webkit t
+        lsp-ui-doc-delay 0.5
+        lsp-ui-doc-include-signature t
+        lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-hover t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-show-diagnostics t))
 
 ;;(use-package company-lsp
  ;; :commands company-lsp)
