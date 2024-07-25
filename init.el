@@ -107,16 +107,6 @@
   (setq web-mode-code-indent-offset 2)   ;; Indentação para código (JS, PHP, etc.)
   (setq web-mode-enable-auto-quoting nil)) ;; Desativa auto-quoting
 
-
-
-(use-package lsp-php
-  :ensure nil
-  :after php-mode
-  :custom
-  (lsp-php-server-command "/usr/bin/php")) ;; Ajuste o caminho do servidor de linguagem PHP
-
-
-
 ;; JS2 Mode
 (use-package js2-mode
   :mode "\\.js\\'"
@@ -170,9 +160,39 @@
   (setq php-format-on-save t)  ;; Formatar ao salvar (se aplicável)
   (add-hook 'php-mode-hook
             (lambda ()
+			  (set (make-local-variable 'company-backends) '(company-capf))
+              (company-mode t)
+			  (lsp-deferred)
+			  (font-lock-add-keywords nil
+                '(("\\<\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 font-lock-function-name-face)))
               (setq tab-width 4)          ;; Largura da tabulação
               (setq indent-tabs-mode nil) ;; Usar espaços em vez de tabs
               (setq c-basic-offset 4))))  ;; Nível de indentação
+
+(use-package lsp-php
+  :ensure nil
+  :after php-mode
+  :custom
+  (lsp-php-server-command "/usr/bin/php")) ;; Ajuste o caminho do servidor de linguagem PHP
+
+;; Configuração adicional para garantir destaque de sintaxe
+(global-font-lock-mode t)
+
+;; Adicionar highlight para funções nativas do PHP
+(font-lock-add-keywords 'php-mode
+  '(("\\<\\(substr\\|strlen\\|array_push\\|implode\\|explode\\|in_array\\|is_int\\|print_r\\|echo\\)\\>" . font-lock-function-name-face)))
+
+;; Configuração adicional para garantir destaque de sintaxe
+(add-hook 'php-mode-hook
+          (lambda ()
+            (font-lock-mode 1)))
+
+
+;; Configuração para exibir erro no modo php
+(add-hook 'php-mode-hook
+          (lambda ()
+            (setq-local eldoc-documentation-function 'php-eldoc-function)
+            (eldoc-mode t)))
 
 ;; Flycheck
 (use-package flycheck
@@ -182,6 +202,7 @@
 
 ;; LSP Mode
 (use-package lsp-mode
+  :ensure t
   :commands (lsp lsp-deferred)
   :hook ((python-mode . lsp-deferred)
          (js-mode . lsp-deferred)
