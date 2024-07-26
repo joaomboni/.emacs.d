@@ -1,7 +1,8 @@
 ;; Remover boas vindas
 (setq inhibit-startup-message t)
 
-(set-face-attribute 'default nil :font "JetBrains Mono-12")  ;; Ajuste o tamanho da fonte conforme necessário
+;; fonte jetbrains - 1° pacman -S ttf-jetbrains-mono
+(set-face-attribute 'default nil :font "JetBrains Mono-12")  ;; Tamanho da fonte 12
 
 ;; Configura espaco tab
 (setq-default tab-width 4)
