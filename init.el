@@ -4,6 +4,17 @@
 ;; fonte jetbrains - 1° pacman -S ttf-jetbrains-mono
 (set-face-attribute 'default nil :font "JetBrains Mono-12")  ;; Tamanho da fonte 12
 
+;; Ativar electric-pair-mode globalmente
+(electric-pair-mode 1)
+
+;; Opcional: configurar para adicionar pares adicionais
+(setq electric-pair-pairs '(
+    (?\{ . ?\})
+    (?\( . ?\))
+    (?\[ . ?\])
+    (?\< . ?\>)
+    ))
+
 ;; Configura espaco tab
 (setq-default tab-width 4)
 
@@ -224,6 +235,8 @@
 		 (php-mode . lsp-deferred))
          ;;(nxml-mode . lsp-deferred))
   :config
+  (setq lsp-clients-php-server-command '("intelephense" "--stdio"))
+  (lsp-enable-which-key-integration t)
   (setq lsp-enable-snippet nil));; Desativa snippets, se preferir
   ;;(setq lsp-completion-provider))
   ;;(setq lsp-prefer-capf t)) ;; Usa completion-at-point-functions para autocompletar
@@ -257,6 +270,16 @@
   :config
   (which-key-mode))
 
+(use-package undo-tree
+  :ensure t
+  :config
+  (global-undo-tree-mode))
+
+;; Redefine C-z para desfazer
+(global-set-key (kbd "C-z") 'undo-tree-undo)
+(global-set-key (kbd "C-S-z") 'undo-tree-redo) ;; C-S-z para refazerackage undo-tree
+
+
 
 
 (custom-set-variables
@@ -264,7 +287,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(treemacs)))
+ '(package-selected-packages '(symfony-mode treemacs)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
