@@ -1,6 +1,8 @@
 ;; Remover boas vindas
 (setq inhibit-startup-message t)
 
+(set-face-attribute 'default nil :font "JetBrains Mono-12")  ;; Ajuste o tamanho da fonte conforme necessário
+
 ;; Configura espaco tab
 (setq-default tab-width 4)
 
@@ -11,7 +13,7 @@
 (global-display-line-numbers-mode t)
 
 ;; Tamanho da fonte
-(set-face-attribute 'default nil :height 100)
+;;(set-face-attribute 'default nil :height 100)
 
 
 ;; Adiciona repositórios MELPA para instalar pacotes
@@ -69,10 +71,16 @@
 
 
 ;;temas
-(use-package spacemacs-theme
+;(use-package spacemacs-theme
+ ; :ensure t
+  ;:defer t
+  ;:init (load-theme 'spacemacs-dark t))
+
+(use-package timu-macos-theme
   :ensure t
   :defer t
-  :init (load-theme 'spacemacs-dark t))
+  :init (load-theme 'timu-macos t))
+(customize-set-variable 'timu-macos-flavour "dark")
 
   ;;terminal zsh
 (defun open-ansi-term-zsh-bottom ()
@@ -215,8 +223,9 @@
 		 (php-mode . lsp-deferred))
          ;;(nxml-mode . lsp-deferred))
   :config
-  (setq lsp-enable-snippet nil) ;; Desativa snippets, se preferir
-  (setq lsp-prefer-capf t)) ;; Usa completion-at-point-functions para autocompletar
+  (setq lsp-enable-snippet nil));; Desativa snippets, se preferir
+  ;;(setq lsp-completion-provider))
+  ;;(setq lsp-prefer-capf t)) ;; Usa completion-at-point-functions para autocompletar
 
 
 ;; Configuração do lsp-ui
@@ -246,6 +255,8 @@
 (use-package which-key
   :config
   (which-key-mode))
+
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
