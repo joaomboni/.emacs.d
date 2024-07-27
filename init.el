@@ -7,14 +7,6 @@
 ;; Ativar electric-pair-mode globalmente
 (electric-pair-mode 1)
 
-;; Opcional: configurar para adicionar pares adicionais
-(setq electric-pair-pairs '(
-    (?\{ . ?\})
-    (?\( . ?\))
-    (?\[ . ?\])
-    (?\< . ?\>)
-    ))
-
 ;; Configura espaco tab
 (setq-default tab-width 4)
 
@@ -24,11 +16,19 @@
 ;; Numeros nas linhas
 (global-display-line-numbers-mode t)
 
-;; Tamanho da fonte
-;;(set-face-attribute 'default nil :height 100)
+  ;;terminal zsh
+(defun open-ansi-term-zsh-bottom ()
+  "Abrir um terminal `ansi-term` usando `zsh` na parte inferior do buffer."
+  (interactive)
+  ;; Divide a janela horizontalmente e move o foco para a janela inferior
+  (split-window-vertically)
+  (other-window 1)
+  ;; Abre `ansi-term` com `zsh` na janela inferior
+  (ansi-term "/bin/zsh"))
+;; Atribuir uma tecla de atalho para abrir o terminal `ansi-term` com `zsh` na parte inferior
+(global-set-key (kbd "C-c t") 'open-ansi-term-zsh-bottom)
 
-
-;; Adiciona repositórios MELPA para instalar pacotes
+; Adiciona repositórios MELPA para instalar pacotes
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("org" . "https://orgmode.org/elpa/")
@@ -47,42 +47,7 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-
-(use-package try
-  :ensure t)
-
-(use-package which-key
-  :ensure t
-  :config (which-key-mode))
-
-(use-package auto-complete
-  :ensure t
-  :init
-  (progn
-    (ac-config-default)
-    (global-auto-complete-mode t)))
-
-(use-package treemacs
-  :ensure t
-  ;;:bind
-  ;;(:map global-map
-  ;;("C-x j"
-  :config
-  (setq treemacs-is-never-other-window t)
-  (add-hook 'emacs-startup-hook 'treemacs))
-
-;;(global-set-key (kbd "C-x j") 'treemacs)
-
-;; Habilitar a funcionalidade de redimensionamento de janelas com o mouse
-(window-divider-mode 1)
-
-;; Personalizar a aparência das divisórias (opcional)
-;; (setq window-divider-default-right-width 3)
-;; (setq window-divider-default-places 'right-only)
-
-
-
-;;temas
+;; TEMAS
 ;(use-package spacemacs-theme
  ; :ensure t
   ;:defer t
@@ -94,17 +59,65 @@
   :init (load-theme 'timu-macos t))
 (customize-set-variable 'timu-macos-flavour "dark")
 
-  ;;terminal zsh
-(defun open-ansi-term-zsh-bottom ()
-  "Abrir um terminal `ansi-term` usando `zsh` na parte inferior do buffer."
-  (interactive)
-  ;; Divide a janela horizontalmente e move o foco para a janela inferior
-  (split-window-vertically)
-  (other-window 1)
-  ;; Abre `ansi-term` com `zsh` na janela inferior
-  (ansi-term "/bin/zsh"))
-;; Atribuir uma tecla de atalho para abrir o terminal `ansi-term` com `zsh` na parte inferior
-(global-set-key (kbd "C-c t") 'open-ansi-term-zsh-bottom)
+
+(use-package try
+  :ensure t)
+
+(use-package lsp-ivy
+  :commands lsp-ivy-workspace-symbol)
+
+(use-package which-key
+  :ensure t
+  :config (which-key-mode))
+
+(use-package treemacs
+  :ensure t
+  :config
+  (setq treemacs-is-never-other-window t)
+  (add-hook 'emacs-startup-hook 'treemacs))
+
+
+
+;; Habilitar a funcionalidade de redimensionamento de janelas com o mouse
+(window-divider-mode 1)
+
+;; Personalizar a aparência das divisórias (opcional)
+;; (setq window-divider-default-right-width 3)
+;; (setq window-divider-default-places 'right-only)
+(use-package auto-complete
+  :ensure t
+  :config
+  (require 'auto-complete-config)
+  (ac-config-default)
+  (setq ac-auto-start nil)
+  (setq ac-quick-help-delay 0.5)
+  (define-key ac-mode-map [(control tab)] 'auto-complete)
+
+  (defun my-ac-config ()
+    (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+    (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
+    (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+    (add-hook 'css-mode-hook 'ac-css-mode-setup)
+    (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+    (global-auto-complete-mode t))
+
+  (my-ac-config))
+
+(use-package auto-complete-clang
+  :ensure t
+  :config
+  (defun my-ac-cc-mode-setup ()
+    (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
+  (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup))
+
+(use-package undo-tree
+  :ensure t
+  :config
+  (global-undo-tree-mode))
+
+;; Redefine C-z para desfazer
+(global-set-key (kbd "C-z") 'undo-tree-undo)
+(global-set-key (kbd "C-S-z") 'undo-tree-redo) ;; C-S-z para refazerackage undo-tree
 
 ;; Company Mode
 (use-package company
@@ -113,11 +126,7 @@
   (setq company-idle-delay 0.0)   ;; Tempo de espera para sugestões aparecerem
   (setq company-minimum-prefix-length 1)) ;; Número mínimo de caracteres para iniciar autocompletar
 
-;; Auto-Complete
-(use-package auto-complete
-  :config
-  (ac-config-default))
-
+;;Linguagens WEB
 ;; Web Mode
 (use-package web-mode
   :mode ("\\.html?\\'" "\\.css\\'" "\\.php\\'" "\\.js\\'")
@@ -133,67 +142,27 @@
   :config
   (setq js2-basic-offset 2)) ;; Indentação para JS
 
-;; Python Mode
-(use-package python-mode
-  :mode "\\.py\\'"
-  :hook (python-mode . lsp-deferred) ;; Usa LSP (Language Server Protocol) para autocompletar avançado
-  :config
-  (setq python-indent-offset 4)) ;; Indentação para Python
 
-;; Rust Mode
-(use-package rust-mode
-  :mode "\\.rs\\'"
-  :hook (rust-mode . lsp-deferred)
-  :config
-  (setq rust-format-on-save t)) ;; Formata o código ao salvar
 
-;; C/C++ Mode
-(use-package cc-mode
-  :mode ("\\.c\\'" "\\.cpp\\'" "\\.h\\'")
-  :hook ((c-mode . lsp-deferred)
-         (c++-mode . lsp-deferred))
-  :config
-  (setq c-basic-offset 4) ;; Indentação para C/C++
-  (setq-default c-basic-offset 4))
-
-;; Java Mode
-(use-package lsp-java
-  :config (add-hook 'java-mode-hook 'lsp))
-
-;; YAML Mode
-(use-package yaml-mode
-  :mode "\\.yml\\'"
-  :hook (yaml-mode . lsp-deferred)
-  :config
-  (setq yaml-indent-offset 2)) ;; Indentação para YAML
-
-(use-package xml-format
-  :demand t
-  :after nxml-mode)
-(global-set-key (kbd "C-c m") 'xml-format-buffer)
-
-;; php Mode
-(use-package php-mode
-  :mode "\\.php\\'"
+;;PHP
+;; Instalar e configurar lsp-mode para PHP
+(use-package lsp-mode
+  :ensure t
+  :commands (lsp lsp-deferred)
   :hook (php-mode . lsp-deferred)
   :config
-  (setq php-format-on-save t)  ;; Formatar ao salvar (se aplicável)
-  (add-hook 'php-mode-hook
-            (lambda ()
-			  (set (make-local-variable 'company-backends) '(company-capf))
-              (company-mode t)
-			  (lsp-deferred)
-			  (font-lock-add-keywords nil
-                '(("\\<\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 font-lock-function-name-face)))
-              (setq tab-width 4)          ;; Largura da tabulação
-              (setq indent-tabs-mode nil) ;; Usar espaços em vez de tabs
-              (setq c-basic-offset 4))))  ;; Nível de indentação
+  (setq lsp-clients-php-server-command "/usr/bin/intelephense"
+        lsp-prefer-flymake nil))
 
-(use-package lsp-php
-  :ensure nil
-  :after php-mode
-  :custom
-  (lsp-php-server-command "/usr/bin/php")) ;; Ajuste o caminho do servidor de linguagem PHP
+
+;; Configurações adicionais para aprimorar a experiência com LSP
+(use-package lsp-treemacs
+  :commands lsp-treemacs-errors-list)
+
+;; Instalar php-mode para arquivos PHP
+(use-package php-mode
+  :ensure t
+  :mode ("\\.php\\'" . php-mode))
 
 ;; Configuração adicional para garantir destaque de sintaxe
 (global-font-lock-mode t)
@@ -214,32 +183,8 @@
             (setq-local eldoc-documentation-function 'php-eldoc-function)
             (eldoc-mode t)))
 
-;; Flycheck
-(use-package flycheck
-  :hook (after-init . global-flycheck-mode)
-  :config
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))) ;; Verifica sintaxe ao salvar e ativar modo
 
-;; LSP Mode
-(use-package lsp-mode
-  :ensure t
-  :commands (lsp lsp-deferred)
-  :hook ((python-mode . lsp-deferred)
-         (js-mode . lsp-deferred)
-         (web-mode . lsp-deferred)
-         (rust-mode . lsp-deferred)
-         (c-mode . lsp-deferred)
-         (c++-mode . lsp-deferred)
-         (java-mode . lsp-deferred)
-         (yaml-mode . lsp-deferred)
-		 (php-mode . lsp-deferred))
-         ;;(nxml-mode . lsp-deferred))
-  :config
-  (setq lsp-clients-php-server-command '("intelephense" "--stdio"))
-  (lsp-enable-which-key-integration t)
-  (setq lsp-enable-snippet nil));; Desativa snippets, se preferir
-  ;;(setq lsp-completion-provider))
-  ;;(setq lsp-prefer-capf t)) ;; Usa completion-at-point-functions para autocompletar
+
 
 
 ;; Configuração do lsp-ui
@@ -256,41 +201,62 @@
         lsp-ui-sideline-show-code-actions t
         lsp-ui-sideline-show-diagnostics t))
 
-;;(use-package company-lsp
- ;; :commands company-lsp)
 
-;; Configurações adicionais para aprimorar a experiência com LSP
-(use-package lsp-treemacs
-  :commands lsp-treemacs-errors-list)
-
-(use-package lsp-ivy
-  :commands lsp-ivy-workspace-symbol)
-
-(use-package which-key
+;; Flycheck
+(use-package flycheck
+  :hook (after-init . global-flycheck-mode)
   :config
-  (which-key-mode))
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))) ;; Verifica sintaxe ao salvar e ativar modo
 
-(use-package undo-tree
+
+;; YAML Mode
+(use-package yaml-mode
   :ensure t
+  :mode "\\.yml\\'"
+  :hook (yaml-mode . lsp-deferred)
   :config
-  (global-undo-tree-mode))
+  (setq yaml-indent-offset 2) ;; Indentação para YAML
+  
+  ;; Função para indentar todo o buffer YAML
+  (defun my-yaml-reformat-buffer ()
+    "Reformat the entire YAML buffer."
+    (interactive)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^\\( *\\)\\(.*\\)$" nil t)
+        (replace-match (concat (make-string (* yaml-indent-offset (current-indentation)) ? )
+                               (match-string 2)))
+        (forward-line 1))))
 
-;; Redefine C-z para desfazer
-(global-set-key (kbd "C-z") 'undo-tree-undo)
-(global-set-key (kbd "C-S-z") 'undo-tree-redo) ;; C-S-z para refazerackage undo-tree
+  ;; Associar a função a um atalho de teclado (exemplo: C-c C-f)
+  (define-key yaml-mode-map (kbd "C-c C-f") 'my-yaml-reformat-buffer))
+
+
+;; XML 
+(use-package xml-format
+  :demand t
+  :after nxml-mode)
+(global-set-key (kbd "C-c m") 'xml-format-buffer)
 
 
 
+
+;;intelephense no PATH do emacs
+(let ((php-bin-dir "/usr/bin/intelephense"))
+  (setenv "PATH" (concat php-bin-dir ":" (getenv "PATH")))
+  (add-to-list 'exec-path php-bin-dir))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(symfony-mode treemacs)))
+ '(package-selected-packages
+   '(which-key web-mode undo-tree try lsp-ui lsp-pyright lsp-ivy js2-mode flycheck ccls auto-complete-clang)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
