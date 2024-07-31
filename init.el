@@ -16,6 +16,11 @@
 ;; Numeros nas linhas
 (global-display-line-numbers-mode t)
 
+;; Alterar a cor dos comentários para um tom mais opaco
+(custom-set-faces
+ '(font-lock-comment-face ((t (:foreground "#6c757d" :italic t)))))
+
+
   ;;terminal zsh
 (defun open-ansi-term-zsh-bottom ()
   "Abrir um terminal `ansi-term` usando `zsh` na parte inferior do buffer."
