@@ -18,6 +18,10 @@
 
 ;; Alterar a cor dos comentários para um tom mais opaco
 (custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(font-lock-comment-face ((t (:foreground "#6c757d" :italic t)))))
 
 
@@ -52,17 +56,41 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-;; TEMAS
-;(use-package spacemacs-theme
- ; :ensure t
-  ;:defer t
-  ;:init (load-theme 'spacemacs-dark t))
 
-(use-package timu-macos-theme
+;; TEMAS
+(use-package spacemacs-theme
   :ensure t
   :defer t
-  :init (load-theme 'timu-macos t))
-(customize-set-variable 'timu-macos-flavour "dark")
+  :init (load-theme 'spacemacs-dark t))
+
+;;(use-package timu-macos-theme
+ ;; :ensure t
+ ;; :defer t
+ ;; :init (load-theme 'timu-macos t))
+;;(customize-set-variable 'timu-macos-flavour "dark")
+
+
+(use-package treemacs
+  :ensure t
+  :config
+  (setq treemacs-is-never-other-window t)
+  (add-hook 'emacs-startup-hook 'treemacs))
+;; Habilitar a funcionalidade de redimensionamento de janelas com o mouse
+(window-divider-mode 1)
+
+
+;; Configurações adicionais para aprimorar a experiência com LSP
+(use-package lsp-treemacs
+  :commands lsp-treemacs-errors-list)
+
+(use-package undo-tree
+  :ensure t
+  :config
+  (global-undo-tree-mode))
+
+;; Redefine C-z para desfazer
+(global-set-key (kbd "C-z") 'undo-tree-undo)
+(global-set-key (kbd "C-S-z") 'undo-tree-redo) ;; C-S-z para refazerackage undo-tree
 
 
 (use-package try
@@ -75,82 +103,30 @@
   :ensure t
   :config (which-key-mode))
 
-(use-package treemacs
-  :ensure t
-  :config
-  (setq treemacs-is-never-other-window t)
-  (add-hook 'emacs-startup-hook 'treemacs))
-
-
-
-;; Habilitar a funcionalidade de redimensionamento de janelas com o mouse
-(window-divider-mode 1)
-
-;; Personalizar a aparência das divisórias (opcional)
-;; (setq window-divider-default-right-width 3)
-;; (setq window-divider-default-places 'right-only)
-(use-package auto-complete
-  :ensure t
-  :config
-  (require 'auto-complete-config)
-  (ac-config-default)
-  (setq ac-auto-start nil)
-  (setq ac-quick-help-delay 0.5)
-  (define-key ac-mode-map [(control tab)] 'auto-complete)
-
-  (defun my-ac-config ()
-    (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
-    (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
-    (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-    (add-hook 'css-mode-hook 'ac-css-mode-setup)
-    (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-    (global-auto-complete-mode t))
-
-  (my-ac-config))
-
-(use-package auto-complete-clang
-  :ensure t
-  :config
-  (defun my-ac-cc-mode-setup ()
-    (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
-  (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup))
-
-(use-package undo-tree
-  :ensure t
-  :config
-  (global-undo-tree-mode))
-
-;; Redefine C-z para desfazer
-(global-set-key (kbd "C-z") 'undo-tree-undo)
-(global-set-key (kbd "C-S-z") 'undo-tree-redo) ;; C-S-z para refazerackage undo-tree
-
-;; Company Mode
 (use-package company
-  :hook (after-init . global-company-mode)
+  :ensure t
   :config
+  (add-hook 'after-init-hook 'global-company-mode)
   (setq company-idle-delay 0.0)   ;; Tempo de espera para sugestões aparecerem
   (setq company-minimum-prefix-length 1)) ;; Número mínimo de caracteres para iniciar autocompletar
 
-;;Linguagens WEB
-;; Web Mode
-(use-package web-mode
-  :mode ("\\.html?\\'" "\\.css\\'" "\\.php\\'" "\\.js\\'")
+
+(use-package yasnippet
+  :ensure t
   :config
-  (setq web-mode-markup-indent-offset 2) ;; Indentação para HTML
-  (setq web-mode-css-indent-offset 2)    ;; Indentação para CSS
-  (setq web-mode-code-indent-offset 2)   ;; Indentação para código (JS, PHP, etc.)
-  (setq web-mode-enable-auto-quoting nil)) ;; Desativa auto-quoting
+  (yas-global-mode 1))
 
-;; JS2 Mode
-(use-package js2-mode
-  :mode "\\.js\\'"
-  :config
-  (setq js2-basic-offset 2)) ;; Indentação para JS
+(use-package ac-php
+  :ensure t
+  :after (company yasnippet)
+  :hook (php-mode . (lambda ()
+                      (set (make-local-variable 'company-backends)
+                           '((company-ac-php-backend company-dabbrev-code)))
+                      (ac-php-core-eldoc-setup)
+                      (yas-minor-mode 1)
+                      (company-mode 1))))
 
 
-
-;;PHP
-;; Instalar e configurar lsp-mode para PHP
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
@@ -160,10 +136,6 @@
         lsp-prefer-flymake nil))
 
 
-;; Configurações adicionais para aprimorar a experiência com LSP
-(use-package lsp-treemacs
-  :commands lsp-treemacs-errors-list)
-
 ;; Instalar php-mode para arquivos PHP
 (use-package php-mode
   :ensure t
@@ -171,10 +143,6 @@
 
 ;; Configuração adicional para garantir destaque de sintaxe
 (global-font-lock-mode t)
-
-;; Adicionar highlight para funções nativas do PHP
-(font-lock-add-keywords 'php-mode
-  '(("\\<\\(substr\\|strlen\\|array_push\\|implode\\|explode\\|in_array\\|is_int\\|print_r\\|echo\\)\\>" . font-lock-function-name-face)))
 
 ;; Configuração adicional para garantir destaque de sintaxe
 (add-hook 'php-mode-hook
@@ -189,7 +157,19 @@
             (eldoc-mode t)))
 
 
+(use-package web-mode
+  :mode ("\\.html?\\'" "\\.css\\'" "\\.php\\'" "\\.js\\'")
+  :config
+  (setq web-mode-markup-indent-offset 2) ;; Indentação para HTML
+  (setq web-mode-css-indent-offset 2)    ;; Indentação para CSS
+  (setq web-mode-code-indent-offset 2)   ;; Indentação para código (JS, PHP, etc.)
+  (setq web-mode-enable-auto-quoting nil)) ;; Desativa auto-quoting
 
+;; JS2 Mode
+(use-package js2-mode
+  :mode "\\.js\\'"
+  :config
+  (setq js2-basic-offset 2)) ;; Indentação para JS
 
 
 ;; Configuração do lsp-ui
@@ -243,7 +223,51 @@
   :after nxml-mode)
 (global-set-key (kbd "C-c m") 'xml-format-buffer)
 
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)))
 
+(use-package diff-hl
+  :ensure t
+  :hook ((prog-mode . diff-hl-mode)
+         (vc-dir-mode . diff-hl-dir-mode))
+  :config
+  (diff-hl-flydiff-mode 1)
+  (diff-hl-dired-mode 1))
+
+(use-package git-gutter
+  :ensure t
+  :config
+  (global-git-gutter-mode +1))
+
+
+
+;; Auto Complete
+(use-package auto-complete
+  :ensure t
+  :config
+  (require 'auto-complete-config)
+  (ac-config-default)
+  (setq ac-auto-start nil)
+  (setq ac-quick-help-delay 0.5)
+  (define-key ac-mode-map [(control tab)] 'auto-complete)
+
+  (defun my-ac-config ()
+    (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+    (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
+    (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+    (add-hook 'css-mode-hook 'ac-css-mode-setup)
+    (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+    (global-auto-complete-mode t))
+
+  (my-ac-config))
+
+(use-package auto-complete-clang
+  :ensure t
+  :config
+  (defun my-ac-cc-mode-setup ()
+    (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
+  (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup))
 
 
 ;;intelephense no PATH do emacs
@@ -256,12 +280,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(which-key web-mode undo-tree try lsp-ui lsp-pyright lsp-ivy js2-mode flycheck ccls auto-complete-clang)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
+ '(package-selected-packages '(ac-php yasnippet company which-key lsp-ivy try treemacs)))
