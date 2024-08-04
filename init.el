@@ -103,12 +103,20 @@
   :ensure t
   :config (which-key-mode))
 
-(use-package company
-  :ensure t
-  :config
-  (add-hook 'after-init-hook 'global-company-mode)
-  (setq company-idle-delay 0.0)   ;; Tempo de espera para sugestões aparecerem
-  (setq company-minimum-prefix-length 1)) ;; Número mínimo de caracteres para iniciar autocompletar
+
+
+;; ************************ COMPANY ORIGINAL ********************
+;;(use-package company
+ ;; :ensure t
+ ;; :config
+ ;; (add-hook 'after-init-hook 'global-company-mode)
+ ;; (setq company-idle-delay 0.0)   ;; Tempo de espera para sugestões aparecerem
+ ;; (setq company-minimum-prefix-length 1)) ;; Número mínimo de caracteres para iniciar autocompletar
+
+
+
+;; ***************** COMPANY ****************************
+
 
 
 (use-package yasnippet
@@ -157,13 +165,56 @@
             (eldoc-mode t)))
 
 
+;;(use-package web-mode
+ ;; :mode ("\\.html?\\'" "\\.css\\'" "\\.php\\'" "\\.js\\'")
+ ;; :config
+ ;; (setq web-mode-markup-indent-offset 2) ;; Indentação para HTML
+ ;; (setq web-mode-css-indent-offset 2)    ;; Indentação para CSS
+ ;; (setq web-mode-code-indent-offset 2)   ;; Indentação para código (JS, PHP, etc.)
+ ;; (setq web-mode-enable-auto-quoting nil))
+
+;;**************** PACKAGE TESTE **************************
 (use-package web-mode
   :mode ("\\.html?\\'" "\\.css\\'" "\\.php\\'" "\\.js\\'")
   :config
   (setq web-mode-markup-indent-offset 2) ;; Indentação para HTML
   (setq web-mode-css-indent-offset 2)    ;; Indentação para CSS
   (setq web-mode-code-indent-offset 2)   ;; Indentação para código (JS, PHP, etc.)
-  (setq web-mode-enable-auto-quoting nil)) ;; Desativa auto-quoting
+  (setq web-mode-enable-auto-quoting nil) ;; Desativa auto-quoting
+
+  ;; Configuração do company-mode para auto-completamento
+  (use-package company
+    :ensure t
+    :init
+    (global-company-mode)
+    :config
+    (setq company-tooltip-align-annotations t
+          company-idle-delay 0.2
+          company-minimum-prefix-length 1
+          company-selection-wrap-around t))
+
+  (add-hook 'web-mode-hook
+            (lambda ()
+              (set (make-local-variable 'company-backends)
+                   '((company-web-html company-dabbrev-code company-yasnippet)))
+              (company-mode)))
+
+  ;; Configuração do emmet-mode para expansão rápida de tags
+  (use-package emmet-mode
+    :ensure t
+    :hook (web-mode . emmet-mode)
+    :config
+    (setq emmet-indentation 2)))
+
+;; Ativar a autocompletação de tags HTML
+(add-hook 'web-mode-hook 'company-mode)
+
+
+;;******************** TESTE **************************************
+
+
+
+
 
 ;; JS2 Mode
 (use-package js2-mode
@@ -268,6 +319,27 @@
   (defun my-ac-cc-mode-setup ()
     (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
   (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup))
+
+
+(defun insert-html-template ()
+  "Insere um template HTML básico."
+  (interactive)
+  (insert
+   "<!DOCTYPE html>\n"
+   "<html lang=\"en\">\n"
+   "<head>\n"
+   "    <meta charset=\"UTF-8\">\n"
+   "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+   "    <title>Document</title>\n"
+   "</head>\n"
+   "<body>\n"
+   "    \n"
+   "</body>\n"
+   "</html>\n"))
+
+(global-set-key (kbd "C-c h") 'insert-html-template)
+
+
 
 
 ;;intelephense no PATH do emacs
