@@ -2,7 +2,7 @@
 (setq inhibit-startup-message t)
 
 ;; fonte jetbrains - 1° pacman -S ttf-jetbrains-mono
-(set-face-attribute 'default nil :font "JetBrains Mono-12")  ;; Tamanho da fonte 12
+(set-face-attribute 'default nil :font "JetBrains Mono-13")  ;; Tamanho da fonte 12
 
 ;; Ativar electric-pair-mode globalmente
 (electric-pair-mode 1)
@@ -58,10 +58,18 @@
 
 
 ;; TEMAS
-(use-package spacemacs-theme
+
+;; Install the Monokai Pro theme
+(use-package monokai-pro-theme
   :ensure t
-  :defer t
-  :init (load-theme 'spacemacs-dark t))
+  :config
+  (load-theme 'monokai-pro-spectrum t))
+
+
+;;(use-package spacemacs-theme
+  ;;:ensure t
+ ;; :defer t
+ ;; :init (load-theme 'spacemacs-dark t))
 
 ;;(use-package timu-macos-theme
  ;; :ensure t
